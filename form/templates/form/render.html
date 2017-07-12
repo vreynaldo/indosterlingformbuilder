@@ -1,0 +1,27 @@
+{% load staticfiles %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/demo.css' %}">
+<link rel="stylesheet" type="text/css" media="screen" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
+<link rel="stylesheet" type="text/css" media="screen" href="https://cdnjs.cloudflare.com/ajax/libs/rateYo/2.3.1/jquery.rateyo.min.css">
+
+<body>
+	{% autoescape off %}
+
+	<h1>ID FORM: {{ id_form }}</h1>
+
+	<form>
+		{{ query.htmldata }}
+	</form>
+	
+
+	<script src="{% static 'js/jquery-3.2.1.min.js' %}"></script>
+	<script src="{% static 'js/vendor.js' %}"></script>
+	<script src="{% static 'tinymce/tinymce.min.js' %}"></script>
+	<script src="{% static 'js/form-render.min.js' %}"></script>
+
+
+	<script type="text/javascript">
+		let jsondata = {{ query.jsondata }};
+		console.log(jsondata);
+	</script>
+	{% endautoescape %}
+</body>

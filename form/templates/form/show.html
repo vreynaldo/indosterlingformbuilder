@@ -1,0 +1,69 @@
+{% load staticfiles %}
+<head>
+  <link rel="stylesheet" type="text/css" href="{% static 'css/demo.css' %}">
+  <link rel="stylesheet" type="text/css" media="screen" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
+  <link rel="stylesheet" type="text/css" media="screen" href="https://cdnjs.cloudflare.com/ajax/libs/rateYo/2.3.1/jquery.rateyo.min.css">
+
+  <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+  <title>jQuery formBuilder/formRender Demo</title>
+</head>
+
+<body>
+	<nav class="navbar navbar-default">
+	    <div class="container-fluid">
+	      <div class="navbar-header">
+	        <a href="#" class="navbar-brand">FormBuilder</a>
+	      </div>
+
+	      <ul class="nav navbar-nav">
+	        <li class="active"><a href="{% url 'index' %}">Home</a></li>
+	      </ul>
+
+	      <ul class="nav navbar-nav navbar-right">
+	        <li class="active"><a href="{% url 'logout' %}"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
+	      </ul>
+	    </div>
+	</nav>
+
+
+
+	<div class="container">
+		<a href="{% url 'addEvent' %}"><button class="btn btn-primary">Add Event</button></a>  
+		<a href="{% url 'add' %}"><button class="btn btn-primary">Add Form</button></a><br>
+		<div class="table-responsive">
+			<table class="table table-bordered table-hover">
+				<tr>
+					<td>#</td>
+					<td>Name</td>
+					<td>Event Name</td>
+					<!-- <td>JSONData</td> -->
+					<td>Options</td>
+				</tr>
+				{% for item in query %}
+				<tr>
+					<td>{{ item.id }}</td>
+					<td>{{ item.name }}</td>
+					<td>{{ item.eventID.name }}</td>
+					<!--  <td>{{ item.jsondata }}</td> -->
+					<td>
+						<form action="{% url 'renderForm' %}" method="POST">
+							{% csrf_token %}
+							<input type="hidden" name="id_item" value="{{ item.id }}">
+							<input type="hidden" name="id_event" value="{{ item.eventID.id }}">
+							<button type="submit" class="btn btn-success" name="submit" value="render">Preview Form</button>
+							<button type="submit" class="btn btn-success" name="submit" value="edit">Edit Form</button>
+							<button type="submit" class="btn btn-danger" name="submit" value="delete" onclick="return confirm('Delete Form id {{ item.id }}?')">Delete</button>
+						</form>
+					</td>
+				</tr>
+				{% endfor %}
+			</table>
+		</div>
+	</div>
+
+	<script src="{% static 'js/jquery-3.2.1.min.js' %}"></script>
+	<script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+
+</body>
+
+

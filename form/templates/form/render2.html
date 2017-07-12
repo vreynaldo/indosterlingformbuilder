@@ -1,0 +1,234 @@
+{% load staticfiles %}
+<body>
+	<p id="test" style="display: none;">{{ query.jsondata }}</p>
+
+	<div id="main">
+		
+	</div>
+
+
+	<script src="{% static 'js/jquery-3.2.1.min.js' %}"></script>
+	<script type="text/javascript">
+		let jsondata = $("#test").html();
+		let obj = JSON.parse(jsondata);
+
+		console.log(jsondata);
+
+		$("#test").html(obj[0].type + " || " + obj[0].name);
+
+		//let main = document.getElementById("main");
+
+		$form = $("<form></form>");
+		$form.attr("method","POST");
+		$form.attr("id", "{{ id_form }}");
+		$form.attr("action"," ");
+		$form.attr("enctype","multipart/form-data")
+
+
+		alert(obj.length);
+
+		for(let i=0; i<obj.length; i++){
+			let item = obj[i];
+
+			
+			
+			if(item.type=='text'){
+
+				$label = $("<label></label>")
+				$label.html(item['label']);
+
+				$tipe = $("<input></input>");
+				$tipe.attr("type",item.subtype);
+				$tipe.attr("class",item.className);
+				$tipe.attr("name",item.name);
+				$tipe.attr("id",item.name);
+				$tipe.attr("description", item.description);
+				$tipe.attr("placeholder", item.placeholder);
+
+				if(item.maxlength > 0) $tipe.attr("maxlength",item.maxlength);
+				if(item.required) $tipe.attr("required",item.required);
+
+
+				$form.append($label);$form.append("<br />")
+				$form.append($tipe);
+			}
+			else if(item.type == 'textarea'){
+				$label = $("<label></label>")
+				$label.html(item['label']);
+
+				$tipe = $("<textarea></textarea>");
+				$tipe.attr("class",item.className);
+				$tipe.attr("name",item.name);
+				$tipe.attr("id",item.name);
+				$tipe.attr("description", item.description);
+				$tipe.attr("placeholder", item.placeholder);
+				
+				if(item.rows > 0) $tipe.attr("rows",item.rows);
+				else $tipe.attr("rows","2");
+				if(item.maxlength > 0) $tipe.attr("maxlength",item.maxlength);
+				if(item.required) $tipe.attr("required",item.required);
+
+				$form.append($label);$form.append("<br />")
+				$form.append($tipe);
+			}
+			else if(item.type == 'select'){
+				$label = $("<label></label>")
+				$label.html(item['label']);
+
+				$tipe = $("<select></select>");
+				$tipe.attr("description", item.description);
+				$tipe.attr("class",item.className);
+				$tipe.attr("name",item.name);
+				$tipe.attr("id",item.name);
+
+				if(item.multiple) $tipe.attr("multiple","true");
+				
+				console.log(item.name + ' = ' + item.values.length);
+
+				for(let j=0; j<item.values.length; j++){
+					let opt = item.values[j];
+
+					$option = $("<option></option>");
+					$option.attr("value",opt.value);
+					$option.html(opt.label);
+					if(opt.selected) $option.attr("selected",opt.selected);
+
+					$tipe.append($option);
+
+				}
+
+				$form.append($label);$form.append("<br />")
+				$form.append($tipe);
+			}
+			else if(item.type == 'radio-group'){
+				$label = $("<label></label>")
+				$label.html(item['label']);
+				
+				console.log(item.name + ' = ' + item.values.length);
+
+				$form.append($label); $form.append("<br />")
+				for(let j=0; j<item.values.length; j++){
+					let opt = item.values[j];
+
+					$tipe = $("<input/>");
+					$tipe.attr("type","radio");
+					$tipe.attr("description", item.description);
+					$tipe.attr("name",item.name);
+					$tipe.attr("value",opt.value);
+					//$tipe.html(opt.label);
+
+					if(item.required) $tipe.attr("required",item.required);
+
+					$form.append($tipe);
+					$form.append(" " + opt.label);
+					$form.append("<br />")
+
+				}
+
+				//<input type="radio" name="gender" value="male"> Male<br>
+				
+			}
+			else if(item.type == 'number'){
+				$label = $("<label></label>")
+				$label.html(item['label']);
+
+				$tipe = $("<input></input>");
+				$tipe.attr("type",item.type);
+				$tipe.attr("class",item.className);
+				$tipe.attr("name",item.name);
+				$tipe.attr("id",item.name);
+				$tipe.attr("description", item.description);
+				$tipe.attr("placeholder", item.placeholder);
+
+				if(item.max > 0) $tipe.attr("max",item.max);
+				if(item.min >= 0) $tipe.attr("min",item.min);
+				if(item.step >= 0) $tipe.attr("step",item.step);
+				if(item.required) $tipe.attr("required",item.required);
+
+
+				$form.append($label);$form.append("<br />")
+				$form.append($tipe);
+			}
+			else if(item.type == 'paragraph'){
+				//$label = $("<label></label>")
+				//$label.html(item['label']);
+
+				if(item.subtype == "p"){
+					$tipe = $("<p></p>");
+					$tipe.html(item.label);
+				}
+				else if(item.subtype == "blockquote"){
+					$tipe = $("<q></q>");
+					$tipe.html(item.label);
+				}
+				$form.append($tipe);
+			}
+			else if(item.type == 'header'){
+				//$label = $("<label></label>")
+				//$label.html(item['label']);
+				$tipe = $("<"+ item.subtype +"></"+ item.subtype +">");
+				$tipe.html(item.label);
+				$tipe.attr("class","className");
+				
+				$form.append($tipe);
+			}
+			else if(item.type == 'hidden'){
+				$tipe = $("<input></input>");
+				$tipe.attr("type",item.type);
+				$tipe.attr("name",item.name);
+				$tipe.attr("id",item.name);
+				$tipe.attr("value",item.value);
+
+				$form.append($tipe);
+			}
+			else if(item.type == 'file'){
+				$label = $("<label></label>")
+				$label.html(item['label']);
+
+
+				$tipe = $("<input></input>");
+				$tipe.attr("type",item.type);
+				$tipe.attr("class",item.className);
+				$tipe.attr("name",item.name);
+				$tipe.attr("id",item.name);
+				$tipe.attr("description", item.description);
+				$tipe.attr("placeholder", item.placeholder);
+
+				if(item.multiple) $tipe.attr("multiple",item.multiple);
+				if(item.required) $tipe.attr("required",item.required);
+
+
+				$form.append($label);$form.append("<br />")
+				$form.append($tipe);
+			}
+			else if(item.type == 'date'){
+				$label = $("<label></label>")
+				$label.html(item['label']);
+
+
+				$tipe = $("<input></input>");
+				$tipe.attr("type",item.type);
+				$tipe.attr("class",item.className);
+				$tipe.attr("name",item.name);
+				$tipe.attr("id",item.name);
+				$tipe.attr("description", item.description);
+				$tipe.attr("placeholder", item.placeholder);
+
+				if(item.required) $tipe.attr("required",item.required);
+
+
+				$form.append($label);$form.append("<br />")
+				$form.append($tipe);
+			}
+			else $form.append("ga muncul, type = " + item.type);
+
+			$form.append("<br />")
+
+		}
+		//alert(form);
+		$("#main").append($form);
+		//document.body.appendChild(form);
+
+
+	</script>
+</body>

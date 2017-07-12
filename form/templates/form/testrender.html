@@ -1,0 +1,108 @@
+{% load staticfiles %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/demo.css' %}">
+<link rel="stylesheet" type="text/css" media="screen" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
+<link rel="stylesheet" type="text/css" media="screen" href="https://cdnjs.cloudflare.com/ajax/libs/rateYo/2.3.1/jquery.rateyo.min.css">
+
+<body>
+
+
+	<nav class="navbar navbar-default">
+	    <div class="container-fluid">
+	      <div class="navbar-header">
+	        <a href="#" class="navbar-brand">FormBuilder</a>
+	      </div>
+
+	      <ul class="nav navbar-nav">
+	        <li><a href="{% url 'index' %}">Home</a></li>
+	      </ul>
+
+	      <ul class="nav navbar-nav navbar-right">
+	        <li class="active"><a href="{% url 'logout' %}"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
+	      </ul>
+	    </div>
+	</nav>
+
+	{% autoescape off %}
+	<h1>EVENT: {{ query.eventID.name }}</h1>
+	<h3>FORM: {{ query.name }}</h3>
+
+	<form id="myForm" method="POST" action="{% url 'responseForm' %}">
+		{% csrf_token %}
+		<input type="hidden" name="hiddenIn" id="hiddenIn">
+		<input type="hidden" name="event" id="event" value="{{ id_event }}">
+		<button type="submit" class="btn btn-success" id="submit" name="submit" onsubmit="add()" >Submit</button>
+	</form>
+	
+
+	<script src="{% static 'js/jquery-3.2.1.min.js' %}"></script>
+	<script src="{% static 'js/vendor.js' %}"></script>
+	<script src="{% static 'tinymce/tinymce.min.js' %}"></script>
+	<script src="{% static 'js/form-builder.min.js' %}"></script>
+  	<script src="{% static 'js/form-render.min.js' %}"></script>
+
+
+	<script type="text/javascript">
+		let jsondata = {{ query.jsondata }};
+		console.log(jsondata);
+
+		$('#myForm').formRender({
+            formData: jsondata,
+            templates: {}
+        });
+
+        $('#myForm').submit( function(ev) {
+			    modifyData();
+			   	getResponse(jsondata);
+			  
+			});
+		
+		function modifyData(){
+			data = $('#myForm').serializeArray();
+			for (var i = 0; i < jsondata.length; i++) {
+				jsondata[i]['value'] = data[i+1]['value'];
+			}
+
+		}
+
+		function getResponse(jsonstringnya){
+			let json = jsonstringnya;
+			let newjson = {};
+			for (var i = 0; i < json.length; i++) {
+				if(json[i]['type'] == "checkbox-group"){
+					let jawaban="";
+					let spasi = " ";
+					let values = json[i]['values'];
+					for(var j =0;j<values.length;j++){
+						if(values[j]["selected"] == "true"){
+							jawaban = jawaban.concat(spasi, values[j]["label"]);
+						}
+					}
+					newjson[json[i]['label']] = jawaban;
+				}
+
+				else if (json[i]['type'] == "date" || 
+						 json[i]['type'] == "text" || 
+						 json[i]['type'] == "textarea" || 
+						 json[i]['type'] == "number") {
+					newjson[json[i]['label']] = json[i]['value'];
+				}
+				else if (json[i]['type'] == "radio-group" || json[i]['type'] == "select") {
+					let jawaban="";
+					let values = json[i]['values'];
+					for(var j =0;j<values.length;j++){
+						if(values[j]["selected"] == "true"){
+							jawaban =  values[j]["label"];
+						}
+					}
+					newjson[json[i]['label']] = jawaban;
+				}
+
+			}
+			console.log(newjson);
+			document.getElementById('hiddenIn').value = JSON.stringify(newjson);
+			return true;
+
+		}
+	</script>
+	{% endautoescape %}
+</body>
